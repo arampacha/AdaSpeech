@@ -63,7 +63,7 @@ class STFT(torch.nn.Module):
             mode="reflect",
         )
         input_data = input_data.squeeze(1)
-        device = torch.device('cuda' is torch.cuda.is_available() else 'cpu')
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         forward_transform = F.conv1d(
             input_data.to(device),
             torch.autograd.Variable(self.forward_basis, requires_grad=False).to(device),
