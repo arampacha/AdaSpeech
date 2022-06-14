@@ -160,7 +160,7 @@ class Preprocessor:
 
     def process_utterance(self,language, language_id, speaker, basename):
         wav_path = os.path.join(self.in_dir, language, speaker, "{}.wav".format(basename))
-        text_path = os.path.join(self.in_dir, language, speaker, "{}.lab".format(basename))
+        text_path = os.path.join(self.in_dir, language, speaker, "{}.txt".format(basename))
         tg_path = os.path.join(
             self.out_dir, "textgrid", speaker, "{}.TextGrid".format(basename)
         )
@@ -266,7 +266,7 @@ class Preprocessor:
         )
 
     def get_alignment(self, tier):
-        sil_phones = ["sil", "sp", "spn"]
+        sil_phones = ["sil", "sp", "spn", ""]
 
         phones = []
         durations = []

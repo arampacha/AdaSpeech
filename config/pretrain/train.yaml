@@ -1,7 +1,7 @@
 path:
-  ckpt_path: "./output/ckpt/multi_language"
-  log_path: "./output/log/multi_language"
-  result_path: "./output/result/multi_language"
+  ckpt_path: "./output/ckpt/adaspeech-vctk"
+  log_path: "./output/log/adaspeech-vctk"
+  result_path: "./output/result/adaspeech-vctk"
 optimizer:
   batch_size: 16
   betas: [0.9, 0.98]

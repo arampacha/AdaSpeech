@@ -1,14 +1,14 @@
-dataset: "Audiobook"
+dataset: "vctk"
 
 path:
-  raw_path: "./raw_data"
-  preprocessed_path: "./preprocessed_data"
+  raw_path: "/home/data/vctk/raw_data"
+  preprocessed_path: "/home/data/vctk/preprocessed_data"
 
 preprocessing:
-  val_size: 50
+  val_size: 100
   text:
     text_cleaners: ["basic_cleaners"]
-    language: "vi"
+    language: "en"
   audio:
     sampling_rate: 22050
     max_wav_value: 32768.0
