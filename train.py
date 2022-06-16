@@ -16,6 +16,7 @@ from utils.model import get_model, get_param_num
 from utils.tools import to_device, log, synth_one_sample, AttrDict
 from model import AdaSpeechLoss
 from dataset import Dataset
+from scipy.io import wavfile
 
 from evaluate import evaluate
 import sys
@@ -165,7 +166,7 @@ def main(args, configs):
                         sampling_rate=sampling_rate,
                         tag="Training/step_{}_{}_synthesized".format(step, tag),
                     )
-
+                    wavfile.write(os.path.join(train_config["path"]["ckpt_path"], f'step{step}_saample.wav'), sampling_rate, wav_prediction)
                 if step % val_step == 0:
                     model.eval()
                     message = evaluate(model, step, configs, val_logger, vocoder)
