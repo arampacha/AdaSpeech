@@ -166,7 +166,7 @@ def main(args, configs):
                         sampling_rate=sampling_rate,
                         tag="Training/step_{}_{}_synthesized".format(step, tag),
                     )
-                    wavfile.write(os.path.join(train_config["path"]["ckpt_path"], f'step{step}_saample.wav'), sampling_rate, wav_prediction)
+                    wavfile.write(os.path.join(train_config["path"]["result_path"], f'step{step}_sample.wav'), sampling_rate, wav_prediction)
                 if step % val_step == 0:
                     model.eval()
                     message = evaluate(model, step, configs, val_logger, vocoder)
