@@ -59,8 +59,8 @@ PhoneEmbedding:
 #   attn_head: 4
 
 language_speaker:
-  num_language: 2
-  num_speaker: 955
+  num_language: 1
+  num_speaker: 4
 
 max_seq_len: 1000
 
