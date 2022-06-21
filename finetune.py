@@ -39,7 +39,7 @@ def get_vocoder(config, checkpoint_path):
 def main(args, configs):
     print("Prepare training ...")
 
-    wandb.init(name=args.run_name, tags=['adaspeech'], sync_tensorboard=True)
+    wandb.init(name=args.run_name, project='voicemod', tags=['adaspeech'], sync_tensorboard=True)
 
     preprocess_config, model_config, train_config = configs
 
