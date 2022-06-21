@@ -98,15 +98,25 @@ class Preprocessor:
         print("Computing statistic quantities ...")
         # Perform normalization if necessary
         if self.pitch_normalization:
-            pitch_mean = pitch_scaler.mean_[0]
-            pitch_std = pitch_scaler.scale_[0]
+            if os.path.exists(os.path.join(self.out_dir, "stats.json")):
+                stats = json.load(open(os.path.join(self.out_dir, "stats.json"), 'r'))
+                pitch_mean = stats['pitch'][2]
+                pitch_std = stats['pitch'][3]
+            else:
+                pitch_mean = pitch_scaler.mean_[0]
+                pitch_std = pitch_scaler.scale_[0]
         else:
             # A numerical trick to avoid normalization...
             pitch_mean = 0
             pitch_std = 1
         if self.energy_normalization:
-            energy_mean = energy_scaler.mean_[0]
-            energy_std = energy_scaler.scale_[0]
+            if os.path.exists(os.path.join(self.out_dir, "stats.json")):
+                stats = json.load(open(os.path.join(self.out_dir, "stats.json"), 'r'))
+                energy_mean = stats['energy'][2]
+                energy_std = stats['energy'][3]
+            else:
+                energy_mean = energy_scaler.mean_[0]
+                energy_std = energy_scaler.scale_[0]
         else:
             energy_mean = 0
             energy_std = 1
@@ -275,6 +285,11 @@ class Preprocessor:
         end_idx = 0
         for t in tier._objects:
             s, e, p = t.start_time, t.end_time, t.text
+            dur = int(np.round(e * self.sampling_rate / self.hop_length)
+                      - np.round(s * self.sampling_rate / self.hop_length))
+            if dur == 0:
+                continue
+            
             # Trim leading silences
             if p == "":
                 p = "sp"
@@ -294,12 +309,7 @@ class Preprocessor:
                 # For silent phones
                 phones.append(p)
 
-            durations.append(
-                int(
-                    np.round(e * self.sampling_rate / self.hop_length)
-                    - np.round(s * self.sampling_rate / self.hop_length)
-                )
-            )
+            durations.append(dur)
 
         # Trim tailing silences
         phones = phones[:end_idx]

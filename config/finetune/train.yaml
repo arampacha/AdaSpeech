@@ -13,11 +13,11 @@ optimizer:
   anneal_steps: [300000, 400000, 500000]
   anneal_rate: 0.3
 step:
-  total_step: 1000
+  total_step: 5000
   log_step: 100
-  synth_step: 100
-  val_step: 100
-  save_step: 100
+  synth_step: 500
+  val_step: 500
+  save_step: 500
   phoneme_level_encoder_step: 60000
 ignore_layer:
   #layers: ["encoder.src_word_emb.weight", "speaker_emb.weight"]
