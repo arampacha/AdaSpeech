@@ -17,8 +17,10 @@ def get_model(args, configs, device, train=False):
             "{}.pth.tar".format(args.restore_step),
         )
         ckpt = torch.load(ckpt_path)
-        model.load_state_dict(ckpt["model"])
-
+        num_speakers = model_config['language_speaker']['num_speaker']
+        ckpt['model']['speaker_emb.weight'] = ckpt['model']['speaker_emb.weight'][:num_speakers, :]
+        _mm = model.load_state_dict(ckpt["model"])
+        if len(_mm): print(_mm)
     if train:
         scheduled_optim = ScheduledOptim(
             model, train_config, model_config, args.restore_step
