@@ -1,5 +1,7 @@
 import argparse
 
+import os
+import random
 import torch
 import yaml
 import sys
@@ -21,8 +23,9 @@ sys.path.append("vocoder")
 from models.hifigan import Generator
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-vocoder_checkpoint_path = "data/g_02519517"
-vocoder_config = "data/config_22k.json"
+
+vocoder_checkpoint_path = "/home/hifigan/g_02500000"
+vocoder_config = "/home/hifigan//config.json"
 
 def get_vocoder(config, checkpoint_path):
     config = json.load(open(config, 'r', encoding='utf-8'))
@@ -34,7 +37,7 @@ def get_vocoder(config, checkpoint_path):
 
     return vocoder
 
-def synthesize(model, step, configs, vocoder, loader, control_values, output_dir):
+def synthesize(model, step, configs, vocoder, batchs, control_values, output_dir):
     preprocess_config, model_config, train_config = configs
     pitch_control, energy_control, duration_control, eng_pos = control_values
     for batch in batchs:
@@ -86,8 +89,9 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
-        "--reference_audio",
-        type=str
+        "--reference_data",
+        type=str,
+        default="/home/data/vctk/"
     )
 
     parser.add_argument(
@@ -109,6 +113,11 @@ if __name__ == "__main__":
         default=1.0,
         help="control the speed of the whole utterance, larger value for slower speaking rate",
     )
+    parser.add_argument(
+        "--text",
+        type=str,
+        default="This is voicemod T T Speech trial of Ada Speech"
+    )
 
     args = parser.parse_args()
 
@@ -121,7 +130,14 @@ if __name__ == "__main__":
     configs = (preprocess_config, model_config, train_config)
 
     output_dir = args.output_dir
-    wav_path = args.reference_audio
+    if os.path.isfile(args.reference_data):
+        wav_path = args.reference_data
+    else:
+        speaker_dict = json.load(open(os.path.join(args.reference_data, 'preprocessed_data', 'speakers.json')))
+        speakers = sorted(list(speaker_dict.keys()), key=lambda x: speaker_dict[x])
+        print(f"using speaker {speakers[args.speaker_id]} for reference audio")
+        refs = [fn for fn in os.listdir(f'/home/data/vctk/raw_data/en/{speakers[args.speaker_id]}') if fn.endswith('.wav')]
+        wav_path = f'/home/data/vctk/raw_data/en/{speakers[args.speaker_id]}/{random.choice(refs)}'
     STFT = Audio.stft.TacotronSTFT(
             preprocess_config["preprocessing"]["stft"]["filter_length"],
             preprocess_config["preprocessing"]["stft"]["hop_length"],
@@ -138,8 +154,10 @@ if __name__ == "__main__":
     vocoder = get_vocoder(vocoder_config, vocoder_checkpoint_path)
 
     # Preprocess texts
-    ids = [datetime.now().strftime("%Y_%m_%d-%I_%M_%S_%p")]
-    raw_texts = "thông tấn xã thailand cho rằng china đã quá tự cao tự đại trong mối quan hệ với russia"
+    ids = [f'spk{args.speaker_id}-'+datetime.now().strftime("%Y_%m_%d-%I_%M_%S_%p")]
+    
+    
+    raw_texts = args.text
     speakers = np.array([args.speaker_id])
     languages = np.array([args.language_id])
     text, eng_pos = convert_text_to_ipa(raw_texts.lower())
