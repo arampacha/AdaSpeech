@@ -45,7 +45,7 @@ def main(args, configs):
 
     # Get dataset
     dataset = Dataset(
-        "train.txt", preprocess_config, train_config, sort=True, drop_last=True
+        args.train_file, preprocess_config, train_config, sort=True, drop_last=True
     )
     batch_size = train_config["optimizer"]["batch_size"]
     group_size = 1  # Set this larger than 1 to enable sorting in Dataset
@@ -174,7 +174,7 @@ def main(args, configs):
 
                 if step % val_step == 0:
                     model.eval()
-                    message = evaluate(model, step, configs, val_logger, vocoder)
+                    message = evaluate(model, step, configs, val_logger, vocoder, eval_file=args.eval_file)
                     with open(os.path.join(val_log_path, "log.txt"), "a") as f:
                         f.write(message + "\n")
                     outer_bar.write(message)
@@ -227,6 +227,8 @@ if __name__ == "__main__":
     parser.add_argument(
         '--run_name', type=str, default=None, help="WandB run name"
     )
+    parser.add_argument('--train_file', type=str, default='train.txt')
+    parser.add_argument('--eval_file', type=str, default='val.txt')
     args = parser.parse_args()
 
     # Read Config
