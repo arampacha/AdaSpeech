@@ -228,7 +228,8 @@ def main(args, configs):
                     for name, text in SYNTH_TEXTS.items():
 
                         synth_inputs += prepare_inputs(text, 0, f'{name}_{step}.wav', ref_mel)
-                    synthesize(model, step, configs, vocoder, synth_inputs, train_config['path']['result_path'])
+                    control = (1.,1.,1.,None)
+                    synthesize(model, step, configs, vocoder, synth_inputs, control, train_config['path']['result_path'], )
                     wavs_to_log = {k:wandb.Audio(f'{k}_{step}.wav', caption=text) for k,text in SYNTH_TEXTS.items()}
                     wandb.log(wavs_to_log)
 
