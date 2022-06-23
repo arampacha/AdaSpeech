@@ -11,6 +11,8 @@ from utils.tools import to_device, log, synth_one_sample
 from model import AdaSpeechLoss
 from dataset import Dataset
 
+import wandb
+
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -84,6 +86,7 @@ def evaluate(model, step, configs, eval_file='val.txt', logger=None, vocoder=Non
             sampling_rate=sampling_rate,
             tag="Validation/step_{}_{}_synthesized".format(step, tag),
         )
+        wandb.log({'eval/sample':wandb.Audio(wav_prediction, sampling_rate)}, step=step)
 
     return message
 

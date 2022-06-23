@@ -39,8 +39,6 @@ def get_vocoder(config, checkpoint_path):
 def main(args, configs):
     print("Prepare training ...")
 
-    wandb.init(name=args.run_name, project='voicemod', tags=['adaspeech'], sync_tensorboard=True)
-
     preprocess_config, model_config, train_config = configs
 
     # Get dataset
@@ -89,6 +87,24 @@ def main(args, configs):
     synth_step = train_config["step"]["synth_step"]
     val_step = train_config["step"]["val_step"]
     phoneme_level_encoder_step = train_config["step"]["phoneme_level_encoder_step"]
+
+    ds_name = preprocess_config['dataset']
+    config = dict(
+        dataset=ds_name,
+        arch="adaspeech",
+        task='fine-tune',
+        ft_modules = ['speaker_emb', 'cln'],
+        from_checkpoint = args.pretrain_dir.split('/')[-2],
+        max_steps=total_step,
+        eval_step=val_step,
+        save_step=save_step,
+        lr=None,
+        bs=batch_size,
+        grad_acc_step=grad_acc_step
+    )
+    config['num_speakers'] = 1
+
+    wandb.init(project='voicemod', name=f'adaspeech-{ds_name}', tags=['adaspeech', ds_name], config=config, sync_tensorboard=True)
 
     outer_bar = tqdm(total=total_step, desc="Training", position=0)
     outer_bar.n = 0
@@ -170,6 +186,7 @@ def main(args, configs):
                         sampling_rate=sampling_rate,
                         tag="Training/step_{}_{}_synthesized".format(step, tag),
                     )
+                    wandb.log({'train/sample':wandb.Audio(wav_prediction, sampling_rate)}, step=step)
                     model.train()
 
                 if step % val_step == 0:
