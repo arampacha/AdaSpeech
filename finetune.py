@@ -64,7 +64,7 @@ def main(args, configs):
 
     # Prepare model
     model, optimizer = load_pretrain(args, configs, device, train=True)
-    model = nn.DataParallel(model)
+    # model = nn.DataParallel(model)
     num_param = get_param_num(model)
     Loss = AdaSpeechLoss(preprocess_config, model_config).to(device)
     print("Number of AdaSpeech Parameters:", num_param)
@@ -105,14 +105,12 @@ def main(args, configs):
         languages = np.array([0])
 
         text = ' '.join(g2p(raw_text)).replace(",", "sp")
-        print(text)
         text = np.array(
                 text_to_sequence(
                     text, preprocess_config["preprocessing"]["text"]["text_cleaners"]
             ))[None, ...]
         text_lens = np.array([len(text[0])])
-        mel_spectrogram = reference_mel.cpu().numpy()
-        mel_spectrogram = np.array([mel_spectrogram])
+        mel_spectrogram = np.array([reference_mel])
         batchs = [(ids, raw_texts, speakers, text, text_lens, max(text_lens), mel_spectrogram, languages)]
         
         return batchs
@@ -222,8 +220,8 @@ def main(args, configs):
                     )
                     wandb.log({'train/sample':wandb.Audio(wav_prediction, sampling_rate)})
 
-                    mel_len = batch[7][0]
-                    ref_mel = batch[6][0, :mel_len]
+                    mel_len = batch[7][0].item()
+                    ref_mel = batch[6][0, :mel_len].cpu().numpy().T
                     synth_inputs = []
                     for name, text in SYNTH_TEXTS.items():
 
