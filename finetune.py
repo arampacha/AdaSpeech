@@ -225,7 +225,7 @@ def main(args, configs):
                     synth_inputs = []
                     for name, text in SYNTH_TEXTS.items():
 
-                        synth_inputs += prepare_inputs(text, 0, f'{name}_{step}.wav', ref_mel)
+                        synth_inputs += prepare_inputs(text, 0, f'{name}_{step}', ref_mel)
                     control = (1.,1.,1.,None)
                     synthesize(model, step, configs, vocoder, synth_inputs, control, train_config['path']['result_path'], )
                     wavs_to_log = {
