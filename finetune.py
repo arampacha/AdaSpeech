@@ -111,7 +111,7 @@ def main(args, configs):
                     text, preprocess_config["preprocessing"]["text"]["text_cleaners"]
             ))[None, ...]
         text_lens = np.array([len(text[0])])
-        mel_spectrogram = reference_mel.numpy()
+        mel_spectrogram = reference_mel.cpu().numpy()
         mel_spectrogram = np.array([mel_spectrogram])
         batchs = [(ids, raw_texts, speakers, text, text_lens, max(text_lens), mel_spectrogram, languages)]
         

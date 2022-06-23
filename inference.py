@@ -9,7 +9,7 @@ import json
 import librosa
 import numpy as np
 
-from G2P.convert_text_ipa import convert_text_to_ipa
+# from G2P.convert_text_ipa import convert_text_to_ipa
 from utils.model import get_model
 from utils.tools import to_device, synth_samples, AttrDict
 from dataset import Dataset
