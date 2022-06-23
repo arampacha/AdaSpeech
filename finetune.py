@@ -249,7 +249,7 @@ def main(args, configs):
                 if step % save_step == 0:
                     torch.save(
                         {
-                            "model": model.module.state_dict(),
+                            "model": model.state_dict(),
                             "optimizer": optimizer._optimizer.state_dict(),
                         },
                         os.path.join(
