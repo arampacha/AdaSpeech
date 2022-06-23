@@ -65,9 +65,9 @@ def main(args, configs):
     # Prepare model
     model, optimizer = load_pretrain(args, configs, device, train=True)
     # model = nn.DataParallel(model)
-    num_param = get_param_num(model)
+    num_param, trainable_param = get_param_num(model)
     Loss = AdaSpeechLoss(preprocess_config, model_config).to(device)
-    print("Number of AdaSpeech Parameters:", num_param)
+    print(f"Number of AdaSpeech Parameters: {num_param}; trainable {trainable_param}")
 
     # Load vocoder
     #vocoder = get_vocoder(model_config, device)
@@ -132,7 +132,9 @@ def main(args, configs):
         save_step=save_step,
         lr=None,
         bs=batch_size,
-        grad_acc_step=grad_acc_step
+        grad_acc_step=grad_acc_step,
+        total_params=num_param,
+        trainable_params=trainable_param
     )
     config['num_speakers'] = 1
 

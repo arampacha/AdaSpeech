@@ -66,7 +66,8 @@ def load_pretrain(args, configs, device, train=False):
 
 def get_param_num(model):
     num_param = sum(param.numel() for param in model.parameters())
-    return num_param
+    trainable_param = sum(param.numel() for param in model.parameters() if param.requires_grad)
+    return num_param, trainable_param
 
 
 def get_vocoder(config, device):
