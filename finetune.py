@@ -2,6 +2,7 @@ import argparse
 from email.generator import Generator
 import json
 import os
+import numpy as np
 
 from sklearn.utils import shuffle
 
@@ -18,9 +19,14 @@ from model import AdaSpeechLoss
 from dataset import Dataset
 
 from evaluate import evaluate
+from inference import get_reference_mel, synth_samples, synthesize
 import sys
 sys.path.append("vocoder")
 from models.hifigan import Generator
+
+import audio as Audio
+from g2p_en import G2p
+from text import text_to_sequence
 
 import wandb
 
@@ -35,6 +41,7 @@ def get_vocoder(config, checkpoint_path):
     vocoder.remove_weight_norm()
 
     return vocoder
+
 
 def main(args, configs):
     print("Prepare training ...")
@@ -87,6 +94,33 @@ def main(args, configs):
     synth_step = train_config["step"]["synth_step"]
     val_step = train_config["step"]["val_step"]
     phoneme_level_encoder_step = train_config["step"]["phoneme_level_encoder_step"]
+
+    # synthesis utils
+    g2p = G2p()
+    def prepare_inputs(text, speaker_id, savefile, reference_mel):
+        raw_texts = [text]
+        ids = [savefile]
+        raw_text = raw_texts[0]
+        speakers = np.array([speaker_id])
+        languages = np.array([0])
+
+        text = ' '.join(g2p(raw_text)).replace(",", "sp")
+        print(text)
+        text = np.array(
+                text_to_sequence(
+                    text, preprocess_config["preprocessing"]["text"]["text_cleaners"]
+            ))[None, ...]
+        text_lens = np.array([len(text[0])])
+        mel_spectrogram = reference_mel.numpy()
+        mel_spectrogram = np.array([mel_spectrogram])
+        batchs = [(ids, raw_texts, speakers, text, text_lens, max(text_lens), mel_spectrogram, languages)]
+        
+        return batchs
+
+    SYNTH_TEXTS = {
+        'phrase1': "This is a voicemod T T Speech trial of zero sample.",
+        'phrase2': 'This is a test run to understand the voice quality of the audio.',
+    }
 
     ds_name = preprocess_config['dataset']
     config = dict(
@@ -186,7 +220,18 @@ def main(args, configs):
                         sampling_rate=sampling_rate,
                         tag="Training/step_{}_{}_synthesized".format(step, tag),
                     )
-                    wandb.log({'train/sample':wandb.Audio(wav_prediction, sampling_rate)}, step=step)
+                    wandb.log({'train/sample':wandb.Audio(wav_prediction, sampling_rate)})
+
+                    mel_len = batch[7][0]
+                    ref_mel = batch[6][0, :mel_len]
+                    synth_inputs = []
+                    for name, text in SYNTH_TEXTS.items():
+
+                        synth_inputs += prepare_inputs(text, 0, f'{name}_{step}.wav', ref_mel)
+                    synthesize(model, step, configs, vocoder, synth_inputs, train_config['path']['result_path'])
+                    wavs_to_log = {k:wandb.Audio(f'{k}_{step}.wav', caption=text) for k,text in SYNTH_TEXTS.items()}
+                    wandb.log(wavs_to_log)
+
                     model.train()
 
                 if step % val_step == 0:

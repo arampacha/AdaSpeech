@@ -86,7 +86,7 @@ def evaluate(model, step, configs, logger=None, vocoder=None, eval_file='val.txt
             sampling_rate=sampling_rate,
             tag="Validation/step_{}_{}_synthesized".format(step, tag),
         )
-        wandb.log({'eval/sample':wandb.Audio(wav_prediction, sampling_rate)}, step=step)
+        wandb.log({'eval/sample':wandb.Audio(wav_prediction, sampling_rate)})
 
     return message
 
