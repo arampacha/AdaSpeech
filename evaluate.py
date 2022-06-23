@@ -17,7 +17,7 @@ import wandb
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
-def evaluate(model, step, configs, eval_file='val.txt', logger=None, vocoder=None):
+def evaluate(model, step, configs, logger=None, vocoder=None, eval_file='val.txt'):
     preprocess_config, model_config, train_config = configs
 
     # Get dataset

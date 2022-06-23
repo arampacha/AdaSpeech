@@ -104,7 +104,7 @@ def main(args, configs):
     )
     config['num_speakers'] = 1
 
-    wandb.init(project='voicemod', name=f'adaspeech-{ds_name}', tags=['adaspeech', ds_name], config=config, sync_tensorboard=True)
+    wandb.init(project='voicemod', name=args.run_name, tags=['adaspeech', ds_name], config=config, sync_tensorboard=True)
 
     outer_bar = tqdm(total=total_step, desc="Training", position=0)
     outer_bar.n = 0
