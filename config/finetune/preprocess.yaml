@@ -1,4 +1,4 @@
-dataset: "Audiobook"
+dataset: "freeman"
 
 path:
   raw_path: "/home/data/freeman/raw_data/"
