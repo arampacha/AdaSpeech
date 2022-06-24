@@ -45,21 +45,14 @@ def load_pretrain(args, configs, device, train=False):
     scheduled_optim = ScheduledOptim(
         model, train_config, model_config, 0
     )
-    for param in model.named_parameters():
-        if "layer_norm" not in param[0]:
-            param[1].requires_grad = False
-        if "encoder" in param[0]:
-            param[1].requires_grad = False
-        if "variance_adaptor" in param[0]:
-            param[1].requires_grad = False
-        if "UtteranceEncoder" in param[0]:
-            param[1].requires_grad = False
-        if "PhonemeLevelEncoder" in param[0]:
-            param[1].requires_grad = False
-        if "PhonemeLevelPredictor" in param[0]:
-            param[1].requires_grad = False
-        if "speaker_emb" in param[0]:
-            param[1].requires_grad = True
+    finetuned_modules = train_config.get('finetuned_modules', ['speaker_emb'])
+    
+    for n, p in model.named_parameters():
+        if (n.split('.')[0] in finetuned_modules) or ('W_scale' in n) or ('W_bias' in n):
+            p.requires_grad = True
+        else:
+            p.requires_grad = False
+
     model.train()
     return model, scheduled_optim
 

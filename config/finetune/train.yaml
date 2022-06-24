@@ -22,3 +22,4 @@ step:
 ignore_layer:
   #layers: ["encoder.src_word_emb.weight", "speaker_emb.weight"]
   layers: []
+finetuned_modules: ['speaker_emb', 'variance_adaptor']

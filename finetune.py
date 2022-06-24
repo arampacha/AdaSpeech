@@ -125,7 +125,7 @@ def main(args, configs):
         dataset=ds_name,
         arch="adaspeech",
         task='fine-tune',
-        ft_modules = ['speaker_emb', 'cln'],
+        ft_modules = ['cln'] + train_config['finetune_modules'],
         from_checkpoint = args.pretrain_dir.split('/')[-2],
         max_steps=total_step,
         eval_step=val_step,
